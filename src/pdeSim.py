@@ -72,7 +72,7 @@ class PoissonFlow2D:
                     data.append(-1/2*(self.kappa[i-1,j]+self.kappa[i-1,j-1])*self.dy/self.dx-\
                     1/2*(self.kappa[i,j]+self.kappa[i,j-1])*self.dy/self.dx-\
                     1/2*(self.kappa[i-1,j]+self.kappa[i,j])*self.dx/self.dy-\
-                    1/2*(self.kappa[i,j-1]+self.kappa[i-1,j-1])*self.dx/self.dy-\
+                    1/2*(self.kappa[i,j-1]+self.kappa[i-1,j-1])*self.dx/self.dy+\
                     self.c[i,j]*self.rho[i,j]*self.freq*np.pi*2*self.dx*self.dy*1j)
                         
                     row.append(Adiag)
