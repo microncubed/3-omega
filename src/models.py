@@ -26,43 +26,16 @@ with open(filename,'r') as f:
         c[row['material']]= float(row['specific_heat'])
         rho[row['material']]= float(row['density'])
           
-def test2d():    
-    nx=101
-    ny=101
-    dx = 3e-6
-    dy = 1e-6
 
-    
-    x_lim = (nx-1)*dx/2
-    y_lim = (ny-1)*dy/2
-    
-    x = np.linspace(-x_lim,x_lim,nx)
-    y = np.linspace(-y_lim,y_lim,ny)
-    
-    k_in = np.zeros((nx,ny))
-    k_in[:,:] =k['water']
-    
-    Q_in = np.zeros((nx,ny))
-    Q_in_val = 1
-    Q_in[:,:] = Q_in_val
-    
-    v_in = np.zeros((nx,ny))
-    c_in = np.zeros((nx,ny))
-    rho_in = np.zeros((nx,ny))
-    
-    c_in[:,:]=c['water']
-    rho_in[:,:]=rho['water']
-    
-    return [k_in,c_in,rho_in,Q_in,v_in,x,y,dx,dy,nx,ny]
-
-def single_wire(glass = True, half_width = 5):
+def single_wire(material='silicon_dioxide',half_width = 5,nx=401,ny=201):
     '''
     A model of a single wire heater sitting on either a glass or silicon nitride substrate.
 
     Parameters
     -----------
-    glass boolean: if True heater sits on glass, if False on silicon nitride
-    half_width int: half width of the heater in grid spacings
+    material str: material choice as available in thermal_parameters.csv
+    half_width int: half width of the heater in x grid spacing
+    nx,ny int: number of grid points in x and y
 
     Returns
     -----------
@@ -77,10 +50,8 @@ def single_wire(glass = True, half_width = 5):
     dy float : step-size in y
     nx int : number of steps in x
     ny int : number of steps in y
-    '''		
-
-    nx=401
-    ny=201
+    '''	
+    
     dx = 2.5e-6
     dy = 2.5e-6
     
@@ -98,28 +69,23 @@ def single_wire(glass = True, half_width = 5):
     v_max=0
     
     #put some water or air in the flow cell
-    if glass == True:
-        k_in[:,:100 ] = k['silicon_dioxide']
-        c_in[:,:100] = c['silicon_dioxide']
-        rho_in[:,:100] = rho['silicon_dioxide']
-    elif glass == False:
-        k_in[:,:100 ] = k['silicon_nitride']
-        c_in[:,:100] = c['silicon_nitride']
-        rho_in[:,:100] = rho['silicon_nitride']
+    
+    k_in[:,:ny//2 ] = k[material]
+    c_in[:,:ny//2] = c[material]
+    rho_in[:,:ny//2] = rho[material]
+
     
     
     #silicon dioxide membrane
-    k_in[:,100:] = k['air']
-    c_in[:,100:] = c['air']
-    rho_in[:,100:] = rho['air']
+    k_in[:,ny//2:] = k['air']
+    c_in[:,ny//2:] = c['air']
+    rho_in[:,ny//2:] = rho['air']
         
     #the heat source
-    Q_in[(200-half_width):(200+half_width),99:100] = 1
+    Q_in[(nx//2-half_width):(nx//2+half_width),ny//2-1:ny//2] = 1
       
     #the parabolic velocity field
     v_in = np.zeros((nx,ny))
-    for yval in range(50,101):
-        v_in[:,yval] = v_max - 4*v_max/50**2*(yval-75)**2
         
     return [k_in,c_in,rho_in,Q_in,v_in,x,y,dx,dy,nx,ny]
 
